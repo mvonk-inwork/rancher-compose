@@ -44,7 +44,7 @@ func (p *ProjectFactory) Create(c *cli.Context) (*project.Project, error) {
 		AccessKey:          c.GlobalString("access-key"),
 		SecretKey:          c.GlobalString("secret-key"),
 		PullCached:         c.Bool("cached"),
-		Uploader:           &rancher.S3Uploader{},
+		Uploader:           &rancher.S3Uploader{Url: c.GlobalString("s3-url"), AccessKey: c.GlobalString("s3-access-key"), SecretKey: c.GlobalString("s3-secret-key")},
 		Args:               c.Args(),
 	}
 	qLookup.Context = context

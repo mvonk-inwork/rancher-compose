@@ -9,13 +9,19 @@ import (
 	"time"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/awslabs/aws-sdk-go/aws"
-	"github.com/awslabs/aws-sdk-go/aws/awserr"
-	"github.com/awslabs/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/docker/libcompose/project"
 )
 
 type S3Uploader struct {
+	Url string
+	AccessKey string
+	SecretKey string
+	region string
 }
 
 func (s *S3Uploader) Name() string {
@@ -25,13 +31,22 @@ func (s *S3Uploader) Name() string {
 func (s *S3Uploader) Upload(p *project.Project, name string, reader io.ReadSeeker, hash string) (string, string, error) {
 	bucketName := fmt.Sprintf("%s-%s", p.Name, someHash())
 	objectKey := fmt.Sprintf("%s-%s", name, hash[:12])
-
-	config := aws.DefaultConfig.Copy()
-	if config.Region == "" {
-		config.Region = "us-east-1"
+	
+	if s.region == "" {
+	   s.region = "us-east-1"
 	}
 
-	svc := s3.New(&config)
+	// Needed for Minio.io Connection
+	s3Session := session.New()
+	s3Config := &aws.Config{
+        	Credentials: 	  credentials.NewStaticCredentials(s.AccessKey, s.SecretKey, ""),
+	        Endpoint:         aws.String(s.Url),
+	        Region:           aws.String(s.region),
+	        DisableSSL:       aws.Bool(true),
+	        S3ForcePathStyle: aws.Bool(true),
+	}
+
+	svc := s3.New(s3Session, s3Config)
 
 	if err := getOrCreateBucket(svc, bucketName); err != nil {
 		return "", "", err

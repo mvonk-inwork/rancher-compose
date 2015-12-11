@@ -39,6 +39,28 @@ func cliMain() {
 	app.Email = ""
 	app.Before = beforeApp
 	app.Flags = append(command.CommonFlags(),
+                cli.StringFlag{
+                        Name: "s3-url",
+                        Usage: fmt.Sprintf(
+                                "Specify the S3 API endpoint URL",
+                        ),
+                        EnvVar: "S3_URL",
+                },
+                cli.StringFlag{
+                        Name: "s3-access-key",
+                        Usage: fmt.Sprintf(
+                                "Specify S3 API access key",
+                        ),
+                        EnvVar: "S3_ACCESS_KEY",
+                },
+                cli.StringFlag{
+                        Name: "s3-secret-key",
+                        Usage: fmt.Sprintf(
+                                "Specify S3 API secret key",
+                        ),
+                        EnvVar: "S3_SECRET_KEY",
+                },
+
 		cli.StringFlag{
 			Name: "url",
 			Usage: fmt.Sprintf(
